@@ -2518,9 +2518,8 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, const Str
 				}
 
 				if (arg_type->cname == name_cache.type_Array_generic || arg_type->cname == name_cache.type_Dictionary_generic) {
-					String arg_cs_type = arg_type->cs_type + _get_generic_type_parameters(*arg_type, iarg.type.generic_type_parameters);
-
-					output << "new " << arg_cs_type << "(" << sformat(arg_type->cs_variant_to_managed, "args[" + itos(i) + "]", arg_type->cs_type, arg_type->name) << ")";
+					output << sformat(arg_type->cs_variant_to_managed,
+							"args[" + itos(i) + "]", arg_type->cs_type, arg_type->name, _get_generic_type_parameters(*arg_type, iarg.type.generic_type_parameters));
 				} else {
 					output << sformat(arg_type->cs_variant_to_managed,
 							"args[" + itos(i) + "]", arg_type->cs_type, arg_type->name);
@@ -3262,9 +3261,8 @@ Error BindingsGenerator::_generate_cs_signal(const BindingsGenerator::TypeInterf
 				}
 
 				if (arg_type->cname == name_cache.type_Array_generic || arg_type->cname == name_cache.type_Dictionary_generic) {
-					String arg_cs_type = arg_type->cs_type + _get_generic_type_parameters(*arg_type, iarg.type.generic_type_parameters);
-
-					p_output << "new " << arg_cs_type << "(" << sformat(arg_type->cs_variant_to_managed, "args[" + itos(idx) + "]", arg_type->cs_type, arg_type->name) << ")";
+					p_output << sformat(arg_type->cs_variant_to_managed,
+							"args[" + itos(idx) + "]", arg_type->cs_type, arg_type->name, _get_generic_type_parameters(*arg_type, iarg.type.generic_type_parameters));
 				} else {
 					p_output << sformat(arg_type->cs_variant_to_managed,
 							"args[" + itos(idx) + "]", arg_type->cs_type, arg_type->name);
@@ -5020,9 +5018,10 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 	// Reuse Array's itype
 	itype.name = "Array_@generic";
 	itype.cname = itype.name;
-	itype.cs_out = "%5return new %2(%0(%1));";
+	itype.cs_out = "%5return %2.CreateTakingOwnershipOfDisposableValue(%0(%1));";
+	itype.c_out = "";
 	// For generic Godot collections, Variant.From<T>/As<T> is slower, so we need this special case
-	itype.cs_variant_to_managed = "VariantUtils.ConvertToArray(%0)";
+	itype.cs_variant_to_managed = "VariantUtils.ConvertToArray%3(%0)";
 	itype.cs_managed_to_variant = "VariantUtils.CreateFromArray(%0)";
 	builtin_types.insert(itype.cname, itype);
 
@@ -5047,9 +5046,10 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
 	// Reuse Dictionary's itype
 	itype.name = "Dictionary_@generic";
 	itype.cname = itype.name;
-	itype.cs_out = "%5return new %2(%0(%1));";
+	itype.cs_out = "%5return %2.CreateTakingOwnershipOfDisposableValue(%0(%1));";
+	itype.c_out = "";
 	// For generic Godot collections, Variant.From<T>/As<T> is slower, so we need this special case
-	itype.cs_variant_to_managed = "VariantUtils.ConvertToDictionary(%0)";
+	itype.cs_variant_to_managed = "VariantUtils.ConvertToDictionary%3(%0)";
 	itype.cs_managed_to_variant = "VariantUtils.CreateFromDictionary(%0)";
 	builtin_types.insert(itype.cname, itype);
 
