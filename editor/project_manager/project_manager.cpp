@@ -557,6 +557,10 @@ void ProjectManager::_run_project_confirm() {
 }
 
 void ProjectManager::_open_selected_projects() {
+	if (project_list->project_opening_initiated) {
+		return;
+	}
+
 	// Show loading text to tell the user that the project manager is busy loading.
 	// This is especially important for the Web project manager.
 	loading_label->show();
